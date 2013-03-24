@@ -36,22 +36,6 @@ def blog(request, id):
 	nav = 'blog'
 	return render_to_response('blog.html', locals(), context_instance=RequestContext(request))
 
-# def addcomment(request):
-# 	blog_id = request.POST.get('blog')
-# 	blog = get_object_or_404(Blog, id=int(blog_id))
-
-# 	comment = Comment(blog)
-# 	comment.pub_date = datetime.datetime.now()
-
-# 	if request.method == 'POST':
-# 		form = CommentForm(request.POST, instance=comment)
-# 		if form.is_valid():
-# 			comment = form.save()
-# 			return HttpResponseRedirect(reverse('/blog/'+blog_id))
-
-# 	return HttpResponseRedirect('/blog/'+blog_id, context_instance=RequestContext(request))
-
-
 
 def readings(request):
 	
