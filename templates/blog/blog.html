@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block script %}
+<script type="text/javascript" charset="utf-8">
+function bindPostCommentHandler() {
+    $('#comment_form form input.submit-preview').remove();
+    $('#comment_form form').submit(function() {
+        $.ajax({
+            type: "POST",
+            data: $('#comment_form form').serialize(),
+            url: "{{ comment_form_target }}",
+            cache: false,
+            dataType: "html",
+            success: function(html, textStatus) {
+                $('#cmt').replaceWith(html);
+                $('#comment_form form')[0].reset();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                $('#comment_form form').replaceWith('Your comment was unable to be posted at this time.  We apologise for the inconvenience.');
+            }
+        });
+        return false;
+    });
+}
+ 
+$(document).ready(function() {
+    bindPostCommentHandler();
+});
+</script> 
+{% endblock %}
+
+{% block container %}
+
+{% load markup %}
+{% load comments %}
+
+<h2>{{ blog.title }}</h2>
+<p class="post-info">Posted at {{ blog.pub_date|date:"Y-m-d H:i" }} | Filed under {% for j in blog.tags.all %}<a href="/blogs?tag={{j.name}}">{{j}}</a>, {% endfor %}</p>
+				
+ <article>
+    {% autoescape off %}
+	{{ blog.content|markdown:'codehilite' }}
+	{% endautoescape %}
+</article>	
+<p></p>
+<article id="cmt">
+		{% get_comment_count for blog as comment_count %}
+		<h3 id="comments">{{ comment_count }} Responses</h3>
+
+			<ol class="commentlist" id="comment-67">
+				{% get_comment_list for blog as blog_com %}
+				{% for comment in blog_com %}
+					<li>
+					<cite>
+						<img alt="" src="/static/images/gravatar.jpg" class="avatar" height="40" width="40" />			
+						{{ comment.name }} Says: <br />				
+						<span class="comment-data">{{ comment.submit_date|date:"Y-m-d H:i" }} </span>
+					</cite>
+							<br>
+					<div class="comment-text center">
+						{{ comment.comment }}
+					</div>		
+					
+				</li>
+				{% endfor %}</ol>
+</article>
+				
+			
+
+			{% get_comment_form for blog as blog_form %} 
+
+			<div id="comment_form">
+ 			<h3 id="respond">Leave a Reply</h3>		
+ 					
+			
+			<form action="{% comment_form_target %}" method="post" id="commentform">		
+				{% csrf_token %}
+                {{ blog_form.object_pk }}
+                {{ blog_form.content_type }}
+                {{ blog_form.timestamp }}
+                {{ blog_form.site }}
+                {{ blog_form.submit_date }}
+                {{ blog_form.security_hash }}
+				<p>	
+					<label for="name">Name (required)</label><br />
+					<input id="name" name="name" placeholder="Your Name" type="text" tabindex="1" />
+				</p>
+			
+					<p>	
+					<label for="name">Email</label><br />
+					<input id="name" name="email" placeholder="foo@foo.com" type="text" tabindex="1" value="foo@foo.com"/>
+				</p>
+				<input type="hidden" name="url" value="http://www.foofoo.com" />
+
+    <input type="hidden" name="next" value='{{BASE_URL}}thanks_for_your_comment/' />
+				<p>
+					<label for="message">Your Message</label><br />
+					<textarea id="message" name="comment" rows="10" cols="20" tabindex="4"></textarea>
+				</p>	
+
+				<div class="no-border">
+                     <input class="button" type="submit" name="Submit" value="Post" tabindex="5">
+
+                     <input type='hidden' name='next' value='/blog/{{ blog.id }}'/>
+                     
+                 </div>
+	
+					
+			</form>	
+			</div>
+
+
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block container %}
+
+{% load markup %}
+{% load comments %}
+
+{% if blogs %}
+
+{% for i in blogs %}
+<p class="date"><span>{{i.pub_date|date:"d"}}</span>{{i.pub_date|date:"M"}}<br>{{i.pub_date|date:"Y"}}<h1><a href="/blog/{{i.id}}">{{i.title}}</a></h1></p>
+
+<article>
+{% autoescape off %}
+{{ i.content|markdown:'codehilite' }}
+{% endautoescape %}
+</article>
+<p class="postmeta">		
+<a href="/blog/{{i.id}}" class="readmore">Read more</a> |
+{% get_comment_count for i as comment_count %} 
+<a href="/blog/{{i.id}}#comments" class="comments">Comments ({{ comment_count }})</a> |				
+<span class="date">Filed under {% for j in i.tags.all %}<a href="/blogs?tag={{j.name}}">{{j}}</a>, {% endfor %}</span>	
+</p>
+<br>
+
+{% endfor %}
+
+{% else %}
+	<p>No blogs...</p>
+{% endif %}
+
+{% endblock %}
